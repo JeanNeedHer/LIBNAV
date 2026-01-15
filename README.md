@@ -7,8 +7,7 @@
 The system is optimized for **Mobile Devices** (PWA support) and **Public Library Kiosks** (Auto-reset & Screensaver features).
 
 ## 🚀 Live Demo
-[**Click here to view the Live Demo**](https://your-vercel-link-here.app)  
-*(Replace this link after you deploy to Vercel)*
+[**Click here to view the Live Demo**](https://libnav.vercel.app/)
 
 ---
 
@@ -52,7 +51,6 @@ The system is optimized for **Mobile Devices** (PWA support) and **Public Librar
 |:---:|:---:|
 | ![Book Details](path/to/your/screenshot3.png) | ![Stats](path/to/your/screenshot4.png) |
 
-*(Note: Upload your screenshots to a folder named `assets` or `screenshots` in your repo and update the paths above!)*
 
 ---
 
