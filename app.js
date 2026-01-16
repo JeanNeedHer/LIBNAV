@@ -1,4 +1,4 @@
-/* app.js - Sidebar Logic & Back Button */
+/* app.js - Fixed Moon Icon */
 
 const searchInput = document.getElementById('search-input');
 const resultsArea = document.getElementById('results-area');
@@ -56,7 +56,7 @@ homeBtn.addEventListener('click', () => {
     performSearch('');
 });
 
-// --- Sidebar ---
+// --- Sidebar Logic ---
 function openSidebar() {
     sideMenu.classList.add('active');
     sideMenuOverlay.classList.add('active');
@@ -70,7 +70,7 @@ hamburgerBtn.addEventListener('click', openSidebar);
 closeMenuBtn.addEventListener('click', closeSidebar);
 sideMenuOverlay.addEventListener('click', closeSidebar);
 
-// --- Filter ---
+// --- Filter Logic ---
 filterToggle.addEventListener('click', (e) => {
     e.stopPropagation();
     filterMenu.style.display = (filterMenu.style.display === 'flex') ? 'none' : 'flex';
@@ -383,22 +383,31 @@ function updateHistory(title) {
     localStorage.setItem('search_history', JSON.stringify(hist));
 }
 
+// --- Theme Logic (Corrected SVGs) ---
 const themeBtn = document.getElementById('theme-toggle');
-const moonSVG = '<svg viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/></svg>';
+
+// CORRECTED Moon Icon (Standard Crescent)
+const moonSVG = '<svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+
+// Lightbulb Icon
 const lightbulbSVG = '<svg viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/></svg>'; 
 
 themeBtn.onclick = () => {
     document.body.classList.toggle('light-mode');
     const isLight = document.body.classList.contains('light-mode');
     localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    
+    // Logic: If Light Mode is ON, show Moon (to switch to Dark).
+    // If Dark Mode is ON, show Lightbulb (to switch to Light).
     themeBtn.innerHTML = isLight ? moonSVG : lightbulbSVG;
 };
+
 function loadTheme() {
     if(localStorage.getItem('theme') === 'light') {
         document.body.classList.add('light-mode');
-        themeBtn.innerHTML = moonSVG;
+        themeBtn.innerHTML = moonSVG; // Show Moon because we are in Light Mode
     } else {
-        themeBtn.innerHTML = lightbulbSVG;
+        themeBtn.innerHTML = lightbulbSVG; // Show Lightbulb because we are in Dark Mode
     }
 }
 init();
