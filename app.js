@@ -1,4 +1,4 @@
-/* app.js - Fixed Moon Icon */
+/* app.js - Full Logic with Feedback & Fixed Icons */
 
 const searchInput = document.getElementById('search-input');
 const resultsArea = document.getElementById('results-area');
@@ -11,7 +11,7 @@ const sideMenu = document.getElementById('side-menu');
 const sideMenuOverlay = document.getElementById('side-menu-overlay');
 const closeMenuBtn = document.getElementById('close-menu');
 
-// Back Button
+// Home Button
 const homeBtn = document.getElementById('home-btn');
 
 // Filter
@@ -22,6 +22,13 @@ const checkboxes = document.querySelectorAll('.filter-option input[type="checkbo
 const micBtn = document.getElementById('mic-btn');
 const screensaver = document.getElementById('screensaver');
 const quickBtns = document.querySelectorAll('.quick-btn');
+
+// Feedback
+const feedbackBtn = document.getElementById('open-feedback-btn');
+const feedbackModal = document.getElementById('feedback-modal');
+const feedbackForm = document.getElementById('feedback-form');
+const fbStatus = document.getElementById('fb-status');
+const fbSubmitBtn = document.getElementById('fb-submit-btn');
 
 let selectedGenres = new Set(); 
 let favorites = JSON.parse(localStorage.getItem('libnav_favs')) || [];
@@ -38,6 +45,53 @@ function init() {
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.search-wrapper')) {
             filterMenu.style.display = 'none';
+        }
+    });
+}
+
+// --- Feedback Logic ---
+if (feedbackBtn) {
+    feedbackBtn.addEventListener('click', () => {
+        feedbackModal.classList.add('active');
+        closeSidebar();
+    });
+}
+
+if (feedbackForm) {
+    feedbackForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('fb-name').value;
+        const email = document.getElementById('fb-email').value;
+        const message = document.getElementById('fb-message').value;
+
+        fbSubmitBtn.disabled = true;
+        fbSubmitBtn.innerText = "Sending...";
+        fbStatus.innerText = "";
+
+        try {
+            const response = await fetch('/api/send-feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, message })
+            });
+
+            if (response.ok) {
+                fbStatus.style.color = "#4ade80"; 
+                fbStatus.innerText = "Message sent! Thank you.";
+                feedbackForm.reset();
+                setTimeout(() => {
+                    feedbackModal.classList.remove('active');
+                    fbStatus.innerText = "";
+                }, 2000);
+            } else {
+                throw new Error('Failed');
+            }
+        } catch (error) {
+            fbStatus.style.color = "#ef4444"; 
+            fbStatus.innerText = "Error sending message.";
+        } finally {
+            fbSubmitBtn.disabled = false;
+            fbSubmitBtn.innerText = "Send Message 🚀";
         }
     });
 }
@@ -70,7 +124,7 @@ hamburgerBtn.addEventListener('click', openSidebar);
 closeMenuBtn.addEventListener('click', closeSidebar);
 sideMenuOverlay.addEventListener('click', closeSidebar);
 
-// --- Filter Logic ---
+// --- Filter ---
 filterToggle.addEventListener('click', (e) => {
     e.stopPropagation();
     filterMenu.style.display = (filterMenu.style.display === 'flex') ? 'none' : 'flex';
@@ -107,10 +161,11 @@ document.ontouchstart = resetIdleTimer;
 
 // --- Sidebar Buttons ---
 quickBtns.forEach(btn => {
+    if(btn.id === 'open-feedback-btn') return;
+
     btn.addEventListener('click', () => {
         const genre = btn.dataset.genre;
         searchInput.value = '';
-        
         hero.classList.add('minimized');
         featuredContainer.style.display = 'none';
         homeBtn.classList.remove('home-hidden');
@@ -202,23 +257,18 @@ searchInput.addEventListener('input', (e) => {
 
 function performSearch(term) {
     term = term.toLowerCase().trim();
-    
     if (term === '' && selectedGenres.size === 0) {
         resultsArea.innerHTML = '';
         return;
     }
-
     let books = LibraryDB.getBooks();
-    
     if (selectedGenres.has('All') || term !== '') {
         books.sort((a, b) => a.title.localeCompare(b.title));
     }
-
     let matches = books.filter(book => {
         const titleMatch = book.title.toLowerCase().includes(term);
         const authorMatch = book.author.toLowerCase().includes(term);
         let genreMatch = false;
-
         if (selectedGenres.has('All')) {
             genreMatch = true;
         } else if (selectedGenres.size > 0) {
@@ -233,26 +283,22 @@ function performSearch(term) {
         }
         return (titleMatch || authorMatch) && genreMatch;
     });
-
     renderResults(matches);
 }
 
 function renderResults(books) {
     resultsArea.innerHTML = '';
-    
     if (books.length === 0) {
         if (searchInput.value !== '' || selectedGenres.size > 0) {
             resultsArea.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">No books found.</div>';
         }
         return;
     }
-
     books.forEach((book, index) => {
         const isFav = favorites.includes(book.id);
         const div = document.createElement('div');
         div.className = 'book-card';
         div.style.animationDelay = `${index * 0.05}s`;
-        
         div.innerHTML = `
             <div class="book-info" style="flex:1;">
                 <h3>${book.title}</h3>
@@ -383,14 +429,14 @@ function updateHistory(title) {
     localStorage.setItem('search_history', JSON.stringify(hist));
 }
 
-// --- Theme Logic (Corrected SVGs) ---
+// --- Theme Logic (Correct SVGs) ---
 const themeBtn = document.getElementById('theme-toggle');
 
-// CORRECTED Moon Icon (Standard Crescent)
+// Moon Icon (Corrected)
 const moonSVG = '<svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
 
 // Lightbulb Icon
-const lightbulbSVG = '<svg viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/></svg>'; 
+const lightbulbSVG = '<svg viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C7.8 12.16 7 10.63 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/></svg>';
 
 themeBtn.onclick = () => {
     document.body.classList.toggle('light-mode');
@@ -405,9 +451,9 @@ themeBtn.onclick = () => {
 function loadTheme() {
     if(localStorage.getItem('theme') === 'light') {
         document.body.classList.add('light-mode');
-        themeBtn.innerHTML = moonSVG; // Show Moon because we are in Light Mode
+        themeBtn.innerHTML = moonSVG; 
     } else {
-        themeBtn.innerHTML = lightbulbSVG; // Show Lightbulb because we are in Dark Mode
+        themeBtn.innerHTML = lightbulbSVG;
     }
 }
 init();
